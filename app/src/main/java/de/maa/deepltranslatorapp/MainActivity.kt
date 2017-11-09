@@ -12,7 +12,7 @@ class MainActivity : Activity() {
 
         val fromLanguage = "DE"
         val toLanguage = "EN"
-        val textToTranslate = "Haben wir heute nicht ein fantastisches Wetter?"
+        val textToTranslate = "Vielleicht hört man es nicht, wenn Bäume im Wald umfallen"
 
         async {
             val translations = DeepL.getTranslations(textToTranslate, fromLanguage, toLanguage)

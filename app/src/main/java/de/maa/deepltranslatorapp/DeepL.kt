@@ -72,7 +72,7 @@ class DeepL private constructor() {
     private fun sendRequestToAPI(request: JSONObject): JSONObject {
         val connection = DeepL.API_URL.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
-        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+        connection.setRequestProperty("Content-Type", "application/json")
         connection.connect()
 
         val bytes = request.toString().toByteArray()
