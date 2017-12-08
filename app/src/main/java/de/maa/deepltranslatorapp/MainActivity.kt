@@ -1,24 +1,12 @@
 package de.maa.deepltranslatorapp
 
-import android.app.Activity
 import android.os.Bundle
-import kotlinx.coroutines.experimental.async
+import android.support.v7.app.AppCompatActivity
+import org.jetbrains.anko.setContentView
 
-class MainActivity : Activity() {
-
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val fromLanguage = "DE"
-        val toLanguage = "EN"
-        val textToTranslate = "Vielleicht hört man es nicht, wenn Bäume im Wald umfallen"
-
-        async {
-            val translations = DeepL.getTranslations(textToTranslate, fromLanguage, toLanguage)
-            translations.forEach { println(it) }
-        }
-
+        MainUI().setContentView(this)
     }
-
 }
