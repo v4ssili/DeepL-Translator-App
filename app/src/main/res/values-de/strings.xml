@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DeepL Übersetzer-App</string>
+    <string name="no_text">Kein Text angegeben</string>
+    <string name="searching_translation">Suche nach Übersetzung...</string>
+    <string name="text_to_translate">Zu übersetzender Text</string>
+</resources>

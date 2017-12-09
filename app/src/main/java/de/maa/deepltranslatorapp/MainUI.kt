@@ -2,15 +2,14 @@ package de.maa.deepltranslatorapp
 
 import android.app.ProgressDialog
 import android.content.Context
-import android.graphics.Color
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.*
 import org.jetbrains.anko.coroutines.experimental.bg
+import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.sdk25.coroutines.onClick
 
 class MainUI : AnkoComponent<MainActivity> {
@@ -20,76 +19,86 @@ class MainUI : AnkoComponent<MainActivity> {
     private lateinit var translation: TextView
     private lateinit var loadingDialog: ProgressDialog
 
-    override fun createView(ui: AnkoContext<MainActivity>) = ui.apply {
-        verticalLayout {
-            padding = dip(10)
+    override fun createView(ui: AnkoContext<MainActivity>) = with(ui) {
+        relativeLayout {
+            padding = dip(5)
 
-            linearLayout {
-                textView("From:").lparams {
-                    rightMargin = dip(5)
-                }
+            relativeLayout {
                 sourceLanguage = spinner {
+                    id = R.id.source_language
                     adapter = LanguageAdapter()
-                }.lparams(width = wrapContent)
-
-                textView("To:").lparams {
-                    leftMargin = dip(15)
-                    rightMargin = dip(5)
+                }.lparams {
+                    alignParentLeft()
+                }
+                imageView(R.drawable.ic_forward_black).lparams {
+                    centerHorizontally()
+                    horizontalMargin = dip(20)
                 }
                 targetLanguage = spinner {
+                    id = R.id.target_language
                     adapter = LanguageAdapter()
                     setSelection(1)
-                }.lparams(width = wrapContent)
-            }.lparams(width = matchParent)
-
-            linearLayout {
-                padding = dip(10)
-
-                input = editText() {
-                    hint = "Text to translate"
                 }.lparams {
-                    weight = 11f
+                    alignParentRight()
+                }
+            }.lparams {
+                width = matchParent
+                alignParentTop()
+            }
+
+            relativeLayout {
+                input = editText {
+                    id = R.id.text_input
+                    hintResource = R.string.text_to_translate
+                }.lparams {
+                    width = dip(270)
+                    alignParentLeft()
+                    alignParentBottom()
                 }
 
-                imageButton(android.R.drawable.ic_menu_send) {
-                    setBackgroundResource(R.drawable.ic_launcher_background)
+                floatingActionButton {
+                    imageResource = R.drawable.ic_send_white
                     onClick { translate(ctx) }
                 }.lparams {
-                    weight = 1f
+                    alignParentRight()
+                    alignParentBottom()
                 }
-            }.lparams(height = dip(64), width = matchParent)
+            }.lparams {
+                width = matchParent
+                alignParentBottom()
+            }
 
-            translation = textView()//.lparams {gravity = Gravity.BOTTOM}
+            translation = textView().lparams {
+                id = R.id.text_translations
+                centerInParent()
+            }
 
-            loadingDialog = indeterminateProgressDialog("Translating...")
+            loadingDialog = indeterminateProgressDialog(R.string.searching_translation)
             loadingDialog.hide()
         }
-    }.view
+    }
 
     private fun translate(ctx: Context) {
         val text = input.text.toString()
-
         if (text.isBlank()) {
-            ctx.toast("No text specified")
+            ctx.toast(R.string.no_text)
             return
         }
 
         val from = sourceLanguage.selectedItem.toString()
         val to = targetLanguage.selectedItem.toString()
-
-        println("text:$text, from:$from, to:$to")
-
         loadingDialog.show()
 
         async(UI) {
-            val translations = bg {
-                DeepL.getTranslations(text, from, to)
-            }
+            val translations = bg { DeepL.getTranslations(text, from, to) }
             val result = translations.await()
             loadingDialog.hide()
-
             translation.text = ""
             result.forEach { translation.append(it + "\n") }
         }
+    }
+
+    fun onStop() {
+        loadingDialog.dismiss()
     }
 }
