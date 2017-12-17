@@ -32,20 +32,18 @@ class MainUI : AnkoComponent<MainActivity> {
                     id = R.id.source_language
                     adapter = LanguageAdapter()
                 }.lparams {
-                    width = dip(0)
-                    weight = 4f
+                    gravity = Gravity.START
                 }
                 imageView(R.drawable.ic_forward_black).lparams {
-                    width = dip(0)
                     weight = 1f
+                    gravity = Gravity.CENTER_HORIZONTAL
                 }
                 targetLanguage = spinner {
                     id = R.id.target_language
                     adapter = LanguageAdapter()
                     setSelection(1)
                 }.lparams {
-                    width = dip(0)
-                    weight = 4f
+                    gravity = Gravity.END
                 }
             }.lparams {
                 width = matchParent
@@ -78,6 +76,7 @@ class MainUI : AnkoComponent<MainActivity> {
                     onClick { translate() }
                 }.lparams {
                     leftMargin = dip(10)
+                    bottomMargin = dip(5)
                     gravity = Gravity.BOTTOM
                 }
             }.lparams {
