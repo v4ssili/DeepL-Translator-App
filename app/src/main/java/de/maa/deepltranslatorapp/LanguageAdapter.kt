@@ -35,5 +35,5 @@ class LanguageAdapter : BaseAdapter() {
 
     override fun getCount(): Int = languages.size
 
-    override fun getItemId(position: Int): Long = 0L
+    override fun getItemId(position: Int): Long = position.toLong()
 }

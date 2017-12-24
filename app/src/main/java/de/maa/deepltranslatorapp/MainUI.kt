@@ -1,13 +1,14 @@
 package de.maa.deepltranslatorapp
 
-import android.app.ProgressDialog
 import android.content.Context
+import android.support.design.widget.FloatingActionButton
 import android.view.Gravity
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
-import android.widget.Toast
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.*
@@ -20,33 +21,15 @@ class MainUI : AnkoComponent<MainActivity> {
     private lateinit var sourceLanguage: Spinner
     private lateinit var targetLanguage: Spinner
     private lateinit var translation: TextView
-    private lateinit var loadingDialog: ProgressDialog
-    private lateinit var noTextToast: Toast
+    private lateinit var translationProgress: ProgressBar
 
     override fun createView(ui: AnkoContext<MainActivity>) = with(ui) {
         verticalLayout {
-            padding = dip(5)
+            backgroundColorResource = R.color.colorPrimaryDark
 
-            linearLayout {
-                sourceLanguage = spinner {
-                    id = R.id.source_language
-                    adapter = LanguageAdapter()
-                }.lparams {
-                    gravity = Gravity.START
-                }
-                imageView(R.drawable.ic_forward_black).lparams {
-                    weight = 1f
-                    gravity = Gravity.CENTER_HORIZONTAL
-                }
-                targetLanguage = spinner {
-                    id = R.id.target_language
-                    adapter = LanguageAdapter()
-                    setSelection(1)
-                }.lparams {
-                    gravity = Gravity.END
-                }
-            }.lparams {
-                width = matchParent
+            translationProgress = horizontalProgressBar {
+                isIndeterminate = true
+                visibility = View.INVISIBLE
             }
 
             relativeLayout {
@@ -61,54 +44,100 @@ class MainUI : AnkoComponent<MainActivity> {
                 weight = 1f
             }
 
-            linearLayout {
-                input = editText {
-                    id = R.id.text_input
-                    hintResource = R.string.text_to_translate
+            verticalLayout {
+                backgroundColorResource = android.R.color.white
+                padding = dip(5)
+
+                linearLayout {
+                    sourceLanguage = spinner {
+                        id = R.id.source_language
+                        adapter = LanguageAdapter()
+                    }
+
+                    relativeLayout {
+                        imageButton {
+                            imageResource = R.drawable.ic_compare_arrows_black
+                            backgroundColor = android.R.color.transparent
+                            onClick { switchLanguages() }
+                        }.lparams {
+                            height = dip(24)
+                            centerInParent()
+                        }
+                    }.lparams {
+                        weight = 1f
+                        gravity = Gravity.CENTER_HORIZONTAL
+                    }
+
+                    targetLanguage = spinner {
+                        id = R.id.target_language
+                        adapter = LanguageAdapter()
+                        setSelection(1)
+                    }
                 }.lparams {
-                    width = dip(0)
-                    weight = 1f
-                    gravity = Gravity.BOTTOM
+                    width = matchParent
                 }
 
-                floatingActionButton {
-                    imageResource = R.drawable.ic_send_white
-                    onClick { translate() }
+                relativeLayout {
+                    backgroundResource = android.R.drawable.divider_horizontal_bright
+                }
+
+                linearLayout {
+                    input = editText {
+                        id = R.id.text_input
+                        hintResource = R.string.text_to_translate
+                    }.lparams {
+                        width = dip(0)
+                        weight = 1f
+                        gravity = Gravity.BOTTOM
+                    }
+
+                    floatingActionButton {
+                        size = FloatingActionButton.SIZE_AUTO
+                        imageResource = R.drawable.ic_send_white
+                        onClick {
+                            if (input.text.toString().isBlank())
+                                ctx.toast(R.string.no_text)
+                            else
+                                findTranslation()
+                        }
+                    }.lparams {
+                        leftMargin = dip(5)
+                        bottomMargin = dip(5)
+                        gravity = Gravity.BOTTOM
+                    }
                 }.lparams {
-                    leftMargin = dip(10)
-                    bottomMargin = dip(5)
-                    gravity = Gravity.BOTTOM
+                    topMargin = dip(5)
+                    width = matchParent
                 }
             }.lparams {
                 width = matchParent
                 gravity = Gravity.BOTTOM
             }
-
-            loadingDialog = indeterminateProgressDialog(R.string.searching_translation)
-            loadingDialog.hide()
-
-            noTextToast = ctx.toast(R.string.no_text)
-            noTextToast.cancel()
         }
     }
 
-    private fun translate() {
-        val text = input.text.toString()
-        if (text.isBlank()) {
-            noTextToast.show()
-            return
-        }
+    suspend fun switchLanguages() {
+        val from = sourceLanguage.selectedItemPosition
+        val to = targetLanguage.selectedItemPosition
 
+        sourceLanguage.setSelection(to, true)
+        targetLanguage.setSelection(from, true)
+    }
+
+    suspend fun findTranslation() {
+        val text = input.text.toString()
         val from = sourceLanguage.selectedItem.toString()
         val to = targetLanguage.selectedItem.toString()
 
         hideKeyboard(input)
-        loadingDialog.show()
+        translationProgress.visibility = View.VISIBLE
 
         async(UI) {
             val translations = bg { DeepL.getTranslations(text, from, to) }
-            val result = translations.await().also { }
-            loadingDialog.hide()
+            val result = translations.await()
+
+            translationProgress.visibility = View.INVISIBLE
+            input.text.clear()
             translation.text = ""
             result.forEach { translation.append(it + "\n") }
         }
@@ -116,10 +145,6 @@ class MainUI : AnkoComponent<MainActivity> {
 
     fun hideKeyboard(editText: EditText) {
         val inputManager = editText.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.hideSoftInputFromWindow(editText.getWindowToken(), 0)
-    }
-
-    fun onStop() {
-        loadingDialog.dismiss()
+        inputManager.hideSoftInputFromWindow(editText.windowToken, 0)
     }
 }
