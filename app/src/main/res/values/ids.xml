@@ -7,4 +7,10 @@
     <item name="text_translations" type="id"/>
     <item name="language_icon" type="id"/>
     <item name="language_text" type="id"/>
+
+    <item name="source_language_icon" type="id"/>
+    <item name="source_language_text" type="id"/>
+    <item name="target_language_icon" type="id"/>
+    <item name="target_language_text" type="id"/>
+    <item name="remove_entry_icon" type="id"/>
 </resources>

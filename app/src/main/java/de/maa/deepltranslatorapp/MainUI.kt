@@ -2,42 +2,51 @@ package de.maa.deepltranslatorapp
 
 import android.content.Context
 import android.support.design.widget.FloatingActionButton
+import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Spinner
-import android.widget.TextView
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.*
 import org.jetbrains.anko.coroutines.experimental.bg
 import org.jetbrains.anko.design.floatingActionButton
+import org.jetbrains.anko.design.indefiniteSnackbar
+import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.sdk25.coroutines.onClick
 
-class MainUI : AnkoComponent<MainActivity> {
+class MainUI : AnkoComponent<MainActivity>, AnkoLogger {
     private lateinit var input: EditText
     private lateinit var sourceLanguage: Spinner
     private lateinit var targetLanguage: Spinner
-    private lateinit var translation: TextView
+//    private lateinit var translation: TextView
     private lateinit var translationProgress: ProgressBar
+    private lateinit var translationHistory: RecyclerView
+
+    private var translations = emptyList<TranslationEntry>()
+    private lateinit var ankoContext: Context
 
     override fun createView(ui: AnkoContext<MainActivity>) = with(ui) {
+        ankoContext = ctx
+
         verticalLayout {
-            backgroundColorResource = R.color.colorPrimaryDark
+            backgroundColorResource = android.R.color.secondary_text_light
 
             translationProgress = horizontalProgressBar {
                 isIndeterminate = true
                 visibility = View.INVISIBLE
             }
 
-            relativeLayout {
-                translation = textView {
-                    id = R.id.text_translations
-                }.lparams {
-                    centerInParent()
-                }
+            translationHistory = recyclerView {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(ctx)
+                adapter = TranslationAdapter(this@MainUI, ctx.database.getEntries())
+                addItemDecoration(DividerItemDecoration(ctx, DividerItemDecoration.VERTICAL))
             }.lparams {
                 width = matchParent
                 height = dip(0)
@@ -95,10 +104,12 @@ class MainUI : AnkoComponent<MainActivity> {
                         size = FloatingActionButton.SIZE_AUTO
                         imageResource = R.drawable.ic_send_white
                         onClick {
-                            if (input.text.toString().isBlank())
+                            if (input.text.toString().isBlank()) {
                                 ctx.toast(R.string.no_text)
-                            else
-                                findTranslation()
+                            } else {
+                                hideKeyboard(input)
+                                findAndShowTranslation()
+                            }
                         }
                     }.lparams {
                         leftMargin = dip(5)
@@ -106,7 +117,7 @@ class MainUI : AnkoComponent<MainActivity> {
                         gravity = Gravity.BOTTOM
                     }
                 }.lparams {
-                    topMargin = dip(5)
+                    topMargin = dip(10)
                     width = matchParent
                 }
             }.lparams {
@@ -116,7 +127,12 @@ class MainUI : AnkoComponent<MainActivity> {
         }
     }
 
-    suspend fun switchLanguages() {
+    fun hideKeyboard(editText: EditText) {
+        val inputManager = editText.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputManager.hideSoftInputFromWindow(editText.windowToken, 0)
+    }
+
+    fun switchLanguages() {
         val from = sourceLanguage.selectedItemPosition
         val to = targetLanguage.selectedItemPosition
 
@@ -124,27 +140,41 @@ class MainUI : AnkoComponent<MainActivity> {
         targetLanguage.setSelection(from, true)
     }
 
-    suspend fun findTranslation() {
+    fun findAndShowTranslation() {
+        translationProgress.visibility = View.VISIBLE
+
         val text = input.text.toString()
         val from = sourceLanguage.selectedItem.toString()
         val to = targetLanguage.selectedItem.toString()
 
-        hideKeyboard(input)
-        translationProgress.visibility = View.VISIBLE
-
         async(UI) {
             val translations = bg { DeepL.getTranslations(text, from, to) }
-            val result = translations.await()
-
-            translationProgress.visibility = View.INVISIBLE
-            input.text.clear()
-            translation.text = ""
-            result.forEach { translation.append(it + "\n") }
+            val first = translations.await().first()
+            addEntry(from, text, to, first)
         }
     }
 
-    fun hideKeyboard(editText: EditText) {
-        val inputManager = editText.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputManager.hideSoftInputFromWindow(editText.windowToken, 0)
+    fun addEntry(sourceLanguage: String, sourceText: String, targetLanguage: String, targetText: String) {
+        async(UI) {
+            val action = bg { ankoContext.database.addEntry(sourceLanguage, sourceText, targetLanguage, targetText) }
+            action.await()
+            updateUI()
+        }
+    }
+
+    fun removeEntry(id: Int) {
+        async(UI) {
+            val action = bg { ankoContext.database.deleteEntry(id) }
+            action.await()
+            updateUI()
+        }
+    }
+
+    suspend fun updateUI() {
+        translationProgress.visibility = View.INVISIBLE
+        input.text.clear()
+
+        translations = bg { ankoContext.database.getEntries() }.await()
+        translationHistory.adapter = TranslationAdapter(this, translations)
     }
 }
