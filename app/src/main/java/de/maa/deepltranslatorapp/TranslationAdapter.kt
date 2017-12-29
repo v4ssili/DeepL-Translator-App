@@ -1,12 +1,14 @@
 package de.maa.deepltranslatorapp
 
 import android.content.Context
+import android.speech.tts.TextToSpeech
 import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk25.coroutines.onClick
@@ -15,6 +17,7 @@ class TranslationAdapter(val ui: MainUI, val translations: List<TranslationEntry
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): TranslationView {
         val view = with(parent!!.context) {
             verticalLayout {
+                id = R.id.translation_layout
                 backgroundResource = android.R.color.white
                 padding = dip(5)
                 linearLayout {
@@ -89,5 +92,36 @@ class TranslationView(itemView: View?, val context: Context, val ui: MainUI) : R
 
         val removeBtn = itemView.find<ImageButton>(R.id.remove_entry_icon)
         removeBtn.onClick { ui.removeEntry(id) }
+
+        val translationLayout = itemView.find<LinearLayout>(R.id.translation_layout)
+        translationLayout.setOnClickListener(object: DoubleClickListener() {
+            override fun onSingleClick(v: View) {
+                ui.copyEntryToInput(id)
+            }
+
+            override fun onDoubleClick(v: View) {
+                ui.readTranslation(id)
+            }
+        })
     }
+}
+
+abstract class DoubleClickListener : View.OnClickListener {
+
+    val DOUBLE_CLICK_DELTA: Long = 400
+    internal var lastClickTime: Long = 0
+
+    override fun onClick(v: View) {
+        val clickTime = System.currentTimeMillis()
+        if (clickTime - lastClickTime < DOUBLE_CLICK_DELTA) {
+            onDoubleClick(v)
+            lastClickTime = 0
+        } else {
+            onSingleClick(v)
+        }
+        lastClickTime = clickTime
+    }
+
+    abstract fun onSingleClick(v: View)
+    abstract fun onDoubleClick(v: View)
 }

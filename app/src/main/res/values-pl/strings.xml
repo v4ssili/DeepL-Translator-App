@@ -4,4 +4,10 @@
     <string name="no_text">Brak tekstu</string>
     <string name="searching_translation">Wyszukiwanie tłumaczeń...</string>
     <string name="text_to_translate">Tekst do tłumaczenia</string>
+    <string name="no_internet">Brak połączenia z Internetem</string>
+    <string name="read_result">Czytaj wynik</string>
+    <string name="tts_not_available">Funkcja zamiany tekstu na mowę jest niedostępna na Twoim urządzeniu.</string>
+    <string name="tts_language_not_available">Funkcja zamiany tekstu na mowę nie jest dostępna dla tego języka.</string>
+    <string name="entry_deleted">Wpis skasowany!</string>
+    <string name="undo">Cofnij</string>
 </resources>

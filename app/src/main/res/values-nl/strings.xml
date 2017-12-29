@@ -4,4 +4,10 @@
     <string name="no_text">Geen tekst gespecificeerd</string>
     <string name="searching_translation">Zoeken naar vertaling...</string>
     <string name="text_to_translate">Tekst te vertalen</string>
+    <string name="no_internet">Geen internetverbinding</string>
+    <string name="read_result">Lees het resultaat</string>
+    <string name="tts_not_available">Text-to-Speech is niet beschikbaar op uw apparaat.</string>
+    <string name="tts_language_not_available">Tekst-naar-spraak is niet beschikbaar voor deze taal.</string>
+    <string name="entry_deleted">Vermelding verwijderd!</string>
+    <string name="undo">ongedaan maken</string>
 </resources>

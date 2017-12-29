@@ -51,6 +51,16 @@ class TranslationHistory(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "translati
         }
     }
 
+    fun addEntry(entry: TranslationEntry) {
+        use {
+                    insertOrThrow(TRANSLATION_TABLE,
+                            "sourceLanguage" to entry.sourceLanguage,
+                            "sourceText" to entry.sourceText,
+                            "targetLanguage" to entry.targetLanguage,
+                            "targetText" to entry.targetText)
+        }
+    }
+
     fun deleteEntry(index: Int) {
         use {
             delete(TRANSLATION_TABLE, "(id = {id})", "id" to index)

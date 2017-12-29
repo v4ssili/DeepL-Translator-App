@@ -4,4 +4,10 @@
     <string name="no_text">Kein Text angegeben</string>
     <string name="searching_translation">Suche nach Übersetzung...</string>
     <string name="text_to_translate">Zu übersetzender Text</string>
+    <string name="no_internet">Keine Internetverbindung</string>
+    <string name="read_result">Ergebnis vorlesen</string>
+    <string name="tts_not_available">Text-zu-Sprache ist auf Ihrem Gerät nicht verfügbar.</string>
+    <string name="tts_language_not_available">Text-zu-Sprache ist für diese Sprache nicht verfügbar.</string>
+    <string name="entry_deleted">Eintrag gelöscht!</string>
+    <string name="undo">Rückgängig</string>
 </resources>
