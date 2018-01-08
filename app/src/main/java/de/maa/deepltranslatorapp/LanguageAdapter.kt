@@ -15,17 +15,18 @@ class LanguageAdapter : BaseAdapter() {
                 padding = dip(4)
 
                 val languageTag = getItem(position)
-                val imageID = ctx.resources.getIdentifier(languageTag.toLowerCase(), "drawable", ctx.packageName)
                 val locale = Locale.forLanguageTag(languageTag)
 
-                imageView(imageID) {
+                imageView {
                     id = R.id.language_icon
+                    imageResource = DeepL.getLanguageResource(languageTag)
                 }.lparams {
                     rightMargin = dip(6)
                 }
 
-                textView(locale.getDisplayLanguage(locale)) {
+                textView {
                     id = R.id.language_text
+                    text = locale.getDisplayLanguage(locale)
                 }
             }
         }

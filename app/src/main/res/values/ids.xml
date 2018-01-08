@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="text_input" type="id"/>
-    <item name="source_language" type="id"/>
-    <item name="target_language" type="id"/>
-    <item name="read_result" type="id"/>
     <item name="button_translate" type="id"/>
-    <item name="text_translations" type="id"/>
-    <item name="translation_layout" type="id"/>
+
     <item name="language_icon" type="id"/>
     <item name="language_text" type="id"/>
 
+    <item name="source_language" type="id"/>
+    <item name="source_language_layout" type="id"/>
     <item name="source_language_icon" type="id"/>
     <item name="source_language_text" type="id"/>
+    <item name="source_speak" type="id"/>
+
+    <item name="target_language" type="id"/>
+    <item name="target_language_layout" type="id"/>
     <item name="target_language_icon" type="id"/>
     <item name="target_language_text" type="id"/>
+    <item name="target_speak" type="id"/>
+
     <item name="remove_entry_icon" type="id"/>
 </resources>

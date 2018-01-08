@@ -4,7 +4,9 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import org.jetbrains.anko.db.*
 
-class TranslationHistory(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "translationhistory.db", null, 1) {
+class TranslationHistory(ctx: Context) :
+        ManagedSQLiteOpenHelper(ctx, "translationhistory.db", null, 1) {
+
     companion object {
         val TRANSLATION_TABLE = "Translations"
         private var instance: TranslationHistory? = null
@@ -41,23 +43,14 @@ class TranslationHistory(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "translati
         return entries
     }
 
-    fun addEntry(from: String, text: String, to: String, translation: String) {
+    fun addEntry(sourceLanguage: String, sourceText: String,
+                 targetLanguage: String, targetText: String) {
         use {
-            insertOrThrow(TRANSLATION_TABLE,
-                    "sourceLanguage" to from,
-                    "sourceText" to text,
-                    "targetLanguage" to to,
-                    "targetText" to translation)
-        }
-    }
-
-    fun addEntry(entry: TranslationEntry) {
-        use {
-                    insertOrThrow(TRANSLATION_TABLE,
-                            "sourceLanguage" to entry.sourceLanguage,
-                            "sourceText" to entry.sourceText,
-                            "targetLanguage" to entry.targetLanguage,
-                            "targetText" to entry.targetText)
+            insert(TRANSLATION_TABLE,
+                    "sourceLanguage" to sourceLanguage,
+                    "sourceText" to sourceText,
+                    "targetLanguage" to targetLanguage,
+                    "targetText" to targetText)
         }
     }
 

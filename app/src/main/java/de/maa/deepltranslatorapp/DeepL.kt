@@ -22,7 +22,9 @@ class DeepL private constructor() {
          *
          * @return The translated text (multiple)
          */
-        fun getTranslations(textToTranslate: String, fromLanguage: String, toLanguage: String): List<String> {
+        fun getTranslations(textToTranslate: String, fromLanguage: String,
+                            toLanguage: String): List<String> {
+
             assert(fromLanguage in VALID_LANGUAGES)
             assert(toLanguage in VALID_LANGUAGES)
 
@@ -32,6 +34,26 @@ class DeepL private constructor() {
             return deepL.getTranslationsFromResponse(response)
         }
 
+        /**
+         * Retrieves a resource id for a given language tag
+         *
+         * @param language The language tag
+         *
+         * @return The drawable resource id
+         */
+        fun getLanguageResource(language: String): Int {
+            assert(language in VALID_LANGUAGES)
+            return when (language) {
+                "DE" -> R.drawable.de
+                "EN" -> R.drawable.en
+                "FR" -> R.drawable.fr
+                "ES" -> R.drawable.es
+                "IT" -> R.drawable.it
+                "NL" -> R.drawable.nl
+                "PL" -> R.drawable.pl
+                else -> R.drawable.ic_clear_black
+            }
+        }
     }
 
     /**
