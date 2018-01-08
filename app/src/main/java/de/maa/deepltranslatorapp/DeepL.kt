@@ -9,19 +9,8 @@ class DeepL private constructor() {
     companion object {
         val API_URL = URL("https://www.deepl.com/jsonrpc")
         val VALID_LANGUAGES = listOf("DE", "EN", "FR", "ES", "IT", "NL", "PL")
-
         private val deepL = DeepL()
 
-        /**
-         * Translates the given text from the source language to the target language.
-         * The DeepL API response may contain multiple translations.
-         *
-         * @param textToTranslate The text that shall be translated
-         * @param fromLanguage The source language
-         * @param toLanguage The target language
-         *
-         * @return The translated text (multiple)
-         */
         fun getTranslations(textToTranslate: String, fromLanguage: String,
                             toLanguage: String): List<String> {
 
@@ -34,13 +23,6 @@ class DeepL private constructor() {
             return deepL.getTranslationsFromResponse(response)
         }
 
-        /**
-         * Retrieves a resource id for a given language tag
-         *
-         * @param language The language tag
-         *
-         * @return The drawable resource id
-         */
         fun getLanguageResource(language: String): Int {
             assert(language in VALID_LANGUAGES)
             return when (language) {
@@ -56,16 +38,6 @@ class DeepL private constructor() {
         }
     }
 
-    /**
-     * Builds a special [JSONObject] with the given parameters.
-     * This object is meant to be sent as request to the DeepL API.
-     *
-     * @param text A given text (sentence, phrase, word)
-     * @param from The source language identifier
-     * @param to The target language identifier
-     *
-     * @return The resulting JSON object
-     */
     private fun buildJsonRequest(text: String, from: String, to: String): JSONObject {
         val jsonRequest = """{
                 jsonrpc: '2.0',
@@ -83,14 +55,6 @@ class DeepL private constructor() {
         return JSONObject(jsonRequest)
     }
 
-    /**
-     * Sends the given request ([JSONObject]) to the DeepL API URL
-     * and returns the resulting API response.
-     *
-     * @param request The constructed API request object
-     *
-     * @return The response from the API
-     */
     private fun sendRequestToAPI(request: JSONObject): JSONObject {
         val connection = DeepL.API_URL.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
@@ -104,13 +68,6 @@ class DeepL private constructor() {
         return JSONObject(response)
     }
 
-    /**
-     * Takes the DeepL API response and filters the processed sentences out of it.
-     *
-     * @param response The DeepL API response
-     *
-     * @return The processed sentences / translations
-     */
     private fun getTranslationsFromResponse(response: JSONObject): List<String> {
         var processedSentences = emptyList<String>()
 
